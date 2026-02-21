@@ -9,11 +9,11 @@ import { Logger } from "@utils/Logger";
 const logger = new Logger(pluginInfo.id, pluginInfo.color);
 const { selectVoiceChannel } = findByPropsLazy("selectVoiceChannel", "selectChannel");
 
+let rejoinTimeout: any = null;
+
 export default definePlugin({
     ...pluginInfo,
     settings,
-
-    rejoinTimeout: null as any,
 
     toolboxActions() {
         const s = settings.use(["antiVoiceChannelDisconnect"]);
@@ -33,7 +33,7 @@ export default definePlugin({
     },
 
     stop() {
-        if (this.rejoinTimeout) clearTimeout(this.rejoinTimeout);
+        if (rejoinTimeout) clearTimeout(rejoinTimeout);
     },
 
     flux: {
@@ -54,25 +54,25 @@ export default definePlugin({
 
                     logger.info(`Detected disconnect from ${channel.name} (${channelId}). Rejoining in ${settings.store.rejoinDelay}s...`);
 
-                    if (this.rejoinTimeout) clearTimeout(this.rejoinTimeout);
+                    if (rejoinTimeout) clearTimeout(rejoinTimeout);
 
-                    this.rejoinTimeout = setTimeout(() => {
-                        this.rejoinTimeout = null;
+                    rejoinTimeout = setTimeout(() => {
+                        rejoinTimeout = null;
 
-                        // Re-fetch channel to be sure
-                        const currentChannel = ChannelStore.getChannel(channelId);
-                        if (currentChannel && isChannelJoinable(currentChannel)) {
-                            logger.info(`Rejoining ${currentChannel.name}...`);
-                            selectVoiceChannel(currentChannel.id);
-                        } else {
-                            logger.warn(`Could not rejoin ${channelId}: Channel not found or not joinable.`);
-                        }
-                    }, settings.store.rejoinDelay * 1000);
-                } else if (state.channelId && this.rejoinTimeout) {
+                         // Re-fetch channel to be sure
+                         const currentChannel = ChannelStore.getChannel(channelId);
+                         if (currentChannel && isChannelJoinable(currentChannel)) {
+                             logger.info(`Rejoining ${currentChannel.name}...`);
+                             selectVoiceChannel(currentChannel.id);
+                         } else {
+                             logger.warn(`Could not rejoin ${channelId}: Channel not found or not joinable.`);
+                         }
+                     }, settings.store.rejoinDelay * 1000);
+                } else if (state.channelId && rejoinTimeout) {
                     // We joined somewhere else (or back), cancel planned rejoin
                     logger.info("Joined a channel, cancelling auto-rejoin.");
-                    clearTimeout(this.rejoinTimeout);
-                    this.rejoinTimeout = null;
+                    clearTimeout(rejoinTimeout);
+                    rejoinTimeout = null;
                 }
             }
         }
