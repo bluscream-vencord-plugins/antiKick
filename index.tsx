@@ -3,7 +3,7 @@ import { pluginInfo } from "./info";
 import { settings } from "./settings";
 import { isChannelJoinable } from "./utils";
 import { findByPropsLazy } from "@webpack";
-import { ChannelStore, UserStore } from "@webpack/common";
+import { ChannelStore, UserStore, Menu, React } from "@webpack/common";
 import { Logger } from "@utils/Logger";
 
 const logger = new Logger(pluginInfo.id, pluginInfo.color);
@@ -14,6 +14,19 @@ export default definePlugin({
     settings,
 
     rejoinTimeout: null as any,
+
+    toolboxActions() {
+        const s = settings.use(["antiVoiceChannelDisconnect"]);
+
+        return [
+            <Menu.MenuCheckboxItem
+                id="anti-kick-voice"
+                label="Voice Channel"
+                checked={s.antiVoiceChannelDisconnect}
+                action={() => s.antiVoiceChannelDisconnect = !s.antiVoiceChannelDisconnect}
+            />
+        ];
+    },
 
     start() {
         logger.info("AntiKick started");
