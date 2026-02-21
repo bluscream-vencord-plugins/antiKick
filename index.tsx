@@ -24,13 +24,20 @@ export default definePlugin({
                 label="Voice Channel"
                 checked={s.antiVoiceChannelDisconnect}
                 action={() => s.antiVoiceChannelDisconnect = !s.antiVoiceChannelDisconnect}
+            />,
+            <Menu.MenuItem
+                id="anti-kick-open-settings"
+                label="Open Anti-Kick Settings"
+                action={() => {
+                    const { openPluginModal } = require("@components/settings/tabs");
+                    const { plugins } = require("@api/PluginManager");
+                    openPluginModal(plugins[pluginInfo.name]);
+                }}
             />
         ];
     },
 
-    start() {
-        logger.info("AntiKick started");
-    },
+    start() { },
 
     stop() {
         if (rejoinTimeout) clearTimeout(rejoinTimeout);
