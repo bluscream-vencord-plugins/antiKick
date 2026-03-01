@@ -27,7 +27,7 @@ export default definePlugin({
             />,
             <Menu.MenuItem
                 id="anti-kick-open-settings"
-                label="Open Anti-Kick Settings"
+                label="Open Settings"
                 action={() => {
                     const { openPluginModal } = require("@components/settings/tabs");
                     const { plugins } = require("@api/PluginManager");
